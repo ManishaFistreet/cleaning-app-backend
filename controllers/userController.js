@@ -25,17 +25,17 @@ exports.sendOTP = async (req, res) => {
         await user.save();
         await sendWhatsAppOTP(phone, otp);
 
-        res.status(200).json({ 
-            success: true, 
+        res.status(200).json({
+            success: true,
             message: 'OTP sent successfully',
             tempUserId: user._id // Return temporary user ID for registration
         });
     } catch (error) {
         console.error('OTP send error:', error);
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             message: 'Failed to send OTP',
-            error: error.message 
+            error: error.message
         });
     }
 };
@@ -43,7 +43,7 @@ exports.sendOTP = async (req, res) => {
 exports.verifyOTP = async (req, res) => {
     try {
         const { phone, otp } = req.body;
-        
+
         const user = await User.findOne({ phone });
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
@@ -69,7 +69,7 @@ exports.verifyOTP = async (req, res) => {
             token = generateAuthToken(user);
         }
 
-        res.status(200).json({ 
+        res.status(200).json({
             success: true,
             message: 'OTP verified successfully',
             isRegistered: !!user.name, // Flag to indicate if user needs registration
@@ -77,10 +77,10 @@ exports.verifyOTP = async (req, res) => {
         });
     } catch (error) {
         console.error('OTP verification error:', error);
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             message: 'OTP verification failed',
-            error: error.message 
+            error: error.message
         });
     }
 };
@@ -88,31 +88,40 @@ exports.verifyOTP = async (req, res) => {
 // Registration
 exports.register = async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+        const { name, email, password, phone, role } = req.body;
+
         const user = await User.findOne({ phone });
         if (!user) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'User not found. Please verify OTP first' 
+            return res.status(404).json({
+                success: false,
+                message: 'User not found. Please verify OTP first'
             });
         }
 
         if (!user.isVerified) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Please verify your phone number first' 
+            return res.status(400).json({
+                success: false,
+                message: 'Please verify your phone number first'
             });
         }
+
         const emailExists = await User.findOne({ email });
         if (emailExists && emailExists._id.toString() !== user._id.toString()) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Email already in use' 
+            return res.status(400).json({
+                success: false,
+                message: 'Email already in use'
             });
         }
+
         user.name = name;
         user.email = email;
         user.password = password;
+
+        const allowedRoles = ["user", "admin", "service_person"];
+        if (role && allowedRoles.includes(role)) {
+            user.role = role;
+        }
+
         await user.save();
         const token = generateAuthToken(user);
 
@@ -124,16 +133,16 @@ exports.register = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                role: user.role
+                role: user.role,
             },
-            token
+            token,
         });
     } catch (error) {
         console.error('Registration error:', error);
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             message: 'Registration failed',
-            error: error.message 
+            error: error.message
         });
     }
 };
@@ -149,17 +158,17 @@ exports.createServiceRequest = async (req, res) => {
             address,
             scheduledDate
         });
-        
+
         await serviceRequest.save();
-        
-        res.status(201).json({ 
-            success: true, 
-            serviceRequest 
+
+        res.status(201).json({
+            success: true,
+            serviceRequest
         });
     } catch (error) {
-        res.status(500).json({ 
-            success: false, 
-            message: error.message 
+        res.status(500).json({
+            success: false,
+            message: error.message
         });
     }
 };
@@ -168,38 +177,38 @@ exports.getUserRequests = async (req, res) => {
     try {
         const requests = await ServiceRequest.find({ userId: req.user._id })
             .sort({ createdAt: -1 });
-        
-        res.status(200).json({ 
-            success: true, 
-            requests 
+
+        res.status(200).json({
+            success: true,
+            requests
         });
     } catch (error) {
-        res.status(500).json({ 
-            success: false, 
-            message: error.message 
+        res.status(500).json({
+            success: false,
+            message: error.message
         });
     }
 };
 
 exports.updateUserInfo = async (req, res) => {
-  try {
-    console.log('Decoded User:', req.user);
-    const userId = req.user.userId;
-    
-    const { name, email, address, profilePhoto } = req.body;
+    try {
+        console.log('Decoded User:', req.user);
+        const userId = req.user.userId;
 
-    const updateData = { name, email, profilePhoto };
-    if (address) updateData.address = address;
+        const { name, email, address, profilePhoto } = req.body;
 
-    const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+        const updateData = { name, email, profilePhoto };
+        if (address) updateData.address = address;
 
-    res.status(200).json({
-      success: true,
-      message: 'User info updated successfully',
-      user
-    });
-  } catch (error) {
-    console.error('Update user error:', error);
-    res.status(500).json({ success: false, message: 'Failed to update user info', error: error.message });
-  }
+        const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+        res.status(200).json({
+            success: true,
+            message: 'User info updated successfully',
+            user
+        });
+    } catch (error) {
+        console.error('Update user error:', error);
+        res.status(500).json({ success: false, message: 'Failed to update user info', error: error.message });
+    }
 };

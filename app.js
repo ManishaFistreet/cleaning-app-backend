@@ -12,11 +12,13 @@ app.use(express.json());
 const userRoutes = require('./routes/userRoutes');
 const servicePersonRoutes = require('./routes/servicePersonRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
 // const paymentRoutes = require('./routes/paymentRoutes');
 
 app.use('/api/user', userRoutes);
 app.use('/api/service-person', servicePersonRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/services',serviceRoutes);
 // app.use('/api/payment', paymentRoutes);
 
 module.exports = app;
