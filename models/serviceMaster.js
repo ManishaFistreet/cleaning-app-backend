@@ -14,7 +14,12 @@ const serviceMasterSchema = new mongoose.Schema({
   column2: String,
   column3: String,
   column4: String,
-  column5: String
+  column5: String,
+  column6: String,
+  serviceActiveStatus: Boolean,
+  serviceAppIcon: String,
+  serviceWebImage: String,
+  serviceMappedAdvertisementUniqueId: String
 });
 
 module.exports = mongoose.model('ServiceMaster', serviceMasterSchema);

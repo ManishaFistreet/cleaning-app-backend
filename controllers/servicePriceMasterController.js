@@ -11,7 +11,7 @@ exports.createPrice = async (req, res) => {
 };
 
 exports.getPrices = async (req, res) => {
-  const prices = await ServicePriceMaster.find();
+  const prices = await ServicePriceMaster.find().populate('serviceCode');;
   res.json(prices);
 };
 

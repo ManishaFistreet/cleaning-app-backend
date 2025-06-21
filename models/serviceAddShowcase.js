@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const serviceAddShowcaseSchema = new mongoose.Schema({
-    uniqueId: { type: String, required: true },
+    uniqueId: { type: String, required: true, ref: 'ServiceMaster' },
     adDetail: String,
     adTitle: String,
     adImageApp: String,
