@@ -3,4 +3,3 @@
 .env
 Dockerfile
 .dockerignore
-dist
