@@ -4,14 +4,10 @@ const mongoose = require('mongoose');
 
 const {
     MONGO_URI,
-    MONGO_USER,
-    MONGO_PASS,
 } = process.env;
 
 mongoose
     .connect(MONGO_URI, {
-        user: MONGO_USER,
-        pass: MONGO_PASS,
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
