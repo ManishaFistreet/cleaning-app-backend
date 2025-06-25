@@ -2,8 +2,12 @@ version: '3.8'
 
 services:
   backend:
-    build: 
-     context: https://github.com/ManishaFistreet/cleaning-app-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        REPO_URL: https://github.com/ManishaFistreet/cleaning-app-backend.git
+        BRANCH: main 
     ports:
       - "5000:5000"
     environment:
