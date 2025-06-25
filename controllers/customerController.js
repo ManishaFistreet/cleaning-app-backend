@@ -1,7 +1,6 @@
 const Customer = require('../models/customer');
 const { v4: uuidv4 } = require('uuid');
 
-// Create new customer
 exports.createCustomer = async (req, res) => {
   try {
     const { phone_no, first_name, second_name, address_code, account_opened_by } = req.body;
@@ -23,10 +22,41 @@ exports.createCustomer = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 exports.sendOTP = async (req, res) => {
-  const { phone_no } = req.body;
-  const otp = Math.floor(100000 + Math.random() * 900000);
-  res.json({ message: 'OTP sent', otp });
+  try {
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, message: 'Phone number is required' });
+    }
+
+    const otp = generateOTP();
+    const otpExpiry = Date.now() + 5 * 60 * 1000;
+
+    let user = await Customer.findOne({ phone });
+    if (!user) {
+      user = new Customer({ phone, otp, otpExpiry });
+    } else {
+      user.otp = otp;
+      user.otpExpiry = otpExpiry;
+    }
+
+    await user.save();
+    await sendWhatsAppOTP(phone, otp);
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent successfully',
+      tempUserId: user._id
+    });
+  } catch (error) {
+    console.error('OTP send error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send OTP',
+      error: error.message
+    });
+  }
 };
 
 exports.verifyOTP = async (req, res) => {

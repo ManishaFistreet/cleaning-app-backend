@@ -7,7 +7,12 @@ const serviceMasterSchema = new mongoose.Schema({
   minHours: Number,
   maxHours: Number,
   currentActivePrice: Number,
-  showoffPriceTag: String,
+  showoffPriceTag: {
+    type: String,
+    default: function () {
+      return `₹${this.currentActivePrice || 0}`;
+    }
+  },
   priceType: String,
   minPersonRequired: Number,
   serviceCategory: String,
