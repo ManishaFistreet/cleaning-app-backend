@@ -20,11 +20,21 @@ const userSchema = new mongoose.Schema({
       lng: Number
     }
   },
+  serviceDetails: {
+    categories: [String],
+    experienceYears: Number,
+    availability: {
+      days: [String],
+      timeSlots: [String]
+    },
+    rating: { type: Number, default: 0 },
+    totalJobsCompleted: { type: Number, default: 0 }
+  },
   profilePhoto: String,
   createdAt: { type: Date, default: Date.now }
 });
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
   }

@@ -4,6 +4,7 @@ const packageServiceSchema = new mongoose.Schema({
   mappedServiceCode: String,
   packageName: String,
   packagePriceId: String,
+  packagePrice: Number,
   mappedPriceMaster: String,
   packageDetail: String,
   packageImageWeb: String,
