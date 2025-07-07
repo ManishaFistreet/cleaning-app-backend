@@ -22,7 +22,7 @@ const packageRoutes = require('./routes/packageRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 const orderBookingRoutes = require('./routes/orderBookingRoutes');
 const couponRoutes = require('./routes/couponRoutes');
-
+const reviewRoutes = require('./routes/reviewRoutes');
 
 app.use('/api/bookings', orderBookingRoutes);
 app.use('/api/user', userRoutes);
@@ -37,5 +37,6 @@ app.use('/api/package', packageRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/reviews',reviewRoutes);
 
 module.exports = app;

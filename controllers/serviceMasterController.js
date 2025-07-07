@@ -1,4 +1,5 @@
 const ServiceMaster = require('../models/serviceMaster');
+const mongoose = require('mongoose');
 
 exports.createService = async (req, res) => {
   try {
@@ -29,6 +30,25 @@ exports.deleteService = async (req, res) => {
     await ServiceMaster.findByIdAndDelete(req.params.id);
     res.json({ message: 'Deleted successfully' });
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getServiceById = async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid service ID" });
+  }
+
+  try {
+    const services = await ServiceMaster.findById(id);
+    if (!services) {
+      return res.status(404).json({ message: 'Service not found' });
+    }
+    res.json(services);
+  } catch (error) {
+    console.error('Error fetching service by ID:', error);
     res.status(500).json({ message: error.message });
   }
 };
