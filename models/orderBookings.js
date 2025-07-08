@@ -19,7 +19,7 @@ const OrderBookingSchema = new mongoose.Schema({
 
   total_value_per_service: { type: Number, required: true }, // Post-tax per service
   grand_total: { type: Number, required: true },        // Final amount customer pays
-
+  gst_per_service_pert: {type: Number, required:true},
   created_at: { type: Date, default: Date.now }
 });
 

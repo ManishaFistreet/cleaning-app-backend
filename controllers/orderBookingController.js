@@ -13,6 +13,7 @@ exports.createBooking = async (req, res) => {
       taxable_value,
       gst_per_service,
       total_value_per_service,
+      gst_per_service_pert,
       grand_total
     } = req.body;
 
@@ -28,6 +29,7 @@ exports.createBooking = async (req, res) => {
       taxable_value,
       gst_per_service,
       total_value_per_service,
+      gst_per_service_pert,
       grand_total
     });
 
@@ -44,5 +46,15 @@ exports.getBookingById = async (req, res) => {
     res.json(booking);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getBookings = async (req, res) => {
+  try {
+    const orderBookings = await OrderBooking.find();
+    res.status(200).json(orderBookings);
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    res.status(500).json({ message: "Failed to fetch order bookings." });
   }
 };
