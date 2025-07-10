@@ -3,7 +3,7 @@ const router = express.Router();
 const reviewController = require('../controllers/reviewController');
 const { authMiddleware } = require('../middleware/auth');
 
-router.post('/', authMiddleware, reviewController.createReview);
-router.get("/review", authMiddleware, reviewController.getReviews);
+router.post('/', reviewController.createReview);
+router.get("/review", reviewController.getReviews);
 
 module.exports = router;

@@ -1,11 +1,54 @@
 const ServiceMaster = require('../models/serviceMaster');
 const mongoose = require('mongoose');
+const SubService = require('../models/subServices');
 
 exports.createService = async (req, res) => {
   try {
-    const service = new ServiceMaster(req.body);
-    await service.save();
-    res.status(201).json(service);
+    const {
+      serviceCode,
+      serviceName,
+      serviceDetail,
+      minHours,
+      maxHours,
+      currentActivePrice,
+      priceType,
+      minPersonRequired,
+      serviceCategory,
+      column2,
+      column3,
+      column4,
+      column5,
+      column6,
+      serviceActiveStatus,
+      serviceMappedAdvertisementUniqueId
+    } = req.body;
+    
+    const serviceWebImage = req.files?.serviceWebImage?.[0]?.path || null;
+    const serviceAppIcon = req.files?.serviceAppIcon?.[0]?.path || null;
+
+    const newService = new ServiceMaster({
+      serviceCode,
+      serviceName,
+      serviceDetail,
+      minHours,
+      maxHours,
+      currentActivePrice,
+      priceType,
+      minPersonRequired,
+      serviceCategory,
+      column2,
+      column3,
+      column4,
+      column5,
+      column6,
+      serviceActiveStatus,
+      serviceMappedAdvertisementUniqueId,
+      serviceWebImage,
+      serviceAppIcon
+    });
+
+    await newService.save();
+    res.status(201).json(newService);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -52,3 +95,13 @@ exports.getServiceById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// exports.getServiceWithSubServices = async (req, res) => {
+//   try {
+//     const serviceId = req.params.id;
+//     const service = await ServiceMaster.findById(serviceId);
+//     const subservices = await SubService.find({ parentService: serviceId });
+//     res.json({ service, subservices });
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to fetch service details" });
+//   }
+// };

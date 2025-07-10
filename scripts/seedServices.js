@@ -21,8 +21,6 @@ const runSeeder = async () => {
     { name: "Single Seater Sofa", category: sofa._id, price: 250 },
     { name: "Double Seater Sofa", category: sofa._id, price: 400 },
   ]);
-
-  console.log("Services seeded!");
   mongoose.disconnect();
 };
 

@@ -1,8 +1,9 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const subServiceSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  category: { type: mongoose.Schema.Types.ObjectId, ref: "ServiceCategory" },
+  parentService: { type: mongoose.Schema.Types.ObjectId, ref: "ServiceMaster", required: true },
+  image: String,
   price: Number,
   duration: String,
   description: String,
