@@ -22,8 +22,9 @@ const locationRoutes = require('./routes/locationRoutes');
 const orderBookingRoutes = require('./routes/orderBookingRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
-app.use('/api/bookings', orderBookingRoutes);
+// app.use('/api/bookings', orderBookingRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/service-person', servicePersonRoutes);
 app.use('/api/admin', adminRoutes);
@@ -35,6 +36,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/reviews', reviewRoutes);
-app.use('/api/sub-services', subServiceRoutes)
+app.use('/api/sub-services', subServiceRoutes);
+app.use('/api/bookings',bookingRoutes);
 
 module.exports = app;

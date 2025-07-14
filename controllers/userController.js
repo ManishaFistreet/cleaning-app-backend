@@ -44,16 +44,16 @@ exports.verifyOTP = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        if (user.otp !== otp) {
+        if (String(user.otp) !== String(otp)) {
             return res.status(400).json({ success: false, message: 'Invalid OTP' });
         }
 
-        if (Date.now() > user.otpExpiry) {
+        if (Date.now() > user.otpExpires) {
             return res.status(400).json({ success: false, message: 'OTP expired' });
         }
 
         user.otp = undefined;
-        user.otpExpiry = undefined;
+        user.otpExpires = undefined;
         user.isVerified = true;
         await user.save();
 
@@ -66,8 +66,17 @@ exports.verifyOTP = async (req, res) => {
             success: true,
             message: 'OTP verified successfully',
             isRegistered: !!user.name,
-            token: token || null
+            token: token || null,
+            user: user.name ? {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                profilePhoto: user.profilePhoto,
+            } : null,
         });
+
     } catch (error) {
         console.error('OTP verification error:', error);
         res.status(500).json({ success: false, message: 'OTP verification failed', error: error.message });
@@ -196,42 +205,42 @@ exports.updateUserInfo = async (req, res) => {
 };
 
 exports.getUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.userId).select('-password -otp -otpExpiry');
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    try {
+        const user = await User.findById(req.user.userId).select('-password -otp -otpExpiry');
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    res.status(200).json({ success: true, user });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to fetch user profile', error: error.message });
-  }
+        res.status(200).json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to fetch user profile', error: error.message });
+    }
 };
 
 exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find({ role: 'user' })
-      .select('-password -otp -otpExpires')
-      .sort({ createdAt: -1 });
-    
-    res.status(200).json({ 
-      success: true, 
-      users 
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+    try {
+        const users = await User.find({ role: 'user' })
+            .select('-password -otp -otpExpires')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            users
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 exports.getAllServicePersons = async (req, res) => {
-  try {
-    const servicePersons = await User.find({ role: 'service_person' })
-      .select('-password -otp -otpExpires')
-      .sort({ createdAt: -1 });
-    
-    res.status(200).json({ 
-      success: true, 
-      servicePersons 
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+    try {
+        const servicePersons = await User.find({ role: 'service_person' })
+            .select('-password -otp -otpExpires')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            servicePersons
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
