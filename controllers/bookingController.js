@@ -1,5 +1,6 @@
 const Booking = require('../models/bookings');
 const ServiceMaster = require('../models/serviceMaster');
+const User = require('../models/user');
 
 exports.createBooking = async (req, res) => {
     try {
@@ -46,6 +47,7 @@ exports.createBooking = async (req, res) => {
             schedule,
             address,
             paymentStatus: paymentStatus || 'pending',
+            confirmationStatus: 'pending',
             subtotal,
             gstTotal,
             grandTotal,
@@ -59,39 +61,129 @@ exports.createBooking = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-exports.getAllBookings = async (req, res) => {
+export const getAllBookings = async (req, res) => {
     try {
         const bookings = await Booking.find()
-            .populate('user', 'name email phone')
-            .populate('service', 'title price');
-
-        res.json({ success: true, bookings });
-    } catch (error) {
-        console.error('Get All Bookings Error:', error);
-        res.status(500).json({ success: false, message: 'Could not fetch bookings' });
+            .populate('user') 
+            .populate('service') 
+            .populate('assignedTo'); 
+        res.status(200).json({ success: true, data: bookings });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error fetching bookings' });
     }
 };
 
 exports.getBookingsByUser = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    if (!userId) return res.status(400).json({ success: false, message: "Missing userId" });
+    try {
+        const { userId } = req.params;
+        if (!userId) return res.status(400).json({ success: false, message: "Missing userId" });
 
-    const bookings = await Booking.find({ user: userId }).populate("services.serviceId");
+        const bookings = await Booking.find({ user: userId }).populate("services.serviceId");
 
-    res.status(200).json({ success: true, bookings });
-  } catch (error) {
-    console.error("Get Bookings Error:", error);
-    res.status(500).json({ success: false, message: "Could not fetch user bookings" });
-  }
+        res.status(200).json({ success: true, bookings });
+    } catch (error) {
+        console.error("Get Bookings Error:", error);
+        res.status(500).json({ success: false, message: "Could not fetch user bookings" });
+    }
 };
 
 exports.cancelBooking = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Booking.findByIdAndUpdate(id, { status: "cancelled" });
-    res.status(200).json({ success: true, message: "Booking cancelled" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Could not cancel booking" });
-  }
+    try {
+        const { id } = req.params;
+        await Booking.findByIdAndUpdate(id, { status: "cancelled" });
+        res.status(200).json({ success: true, message: "Booking cancelled" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Could not cancel booking" });
+    }
+};
+
+exports.getBookingById = async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id)
+            .populate('user', 'name phone email')
+            .populate('services.serviceId');
+        if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
+
+        res.status(200).json({ success: true, booking });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.rescheduleBooking = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { newDate, newTime } = req.body;
+
+        const booking = await Booking.findById(id);
+        if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
+
+        const now = new Date();
+        const scheduledDateTime = new Date(`${booking.schedule.date}T${booking.schedule.time}`);
+
+        const diffInHours = (scheduledDateTime - now) / (1000 * 60 * 60);
+        if (diffInHours < 24) {
+            return res.status(400).json({ success: false, message: "Rescheduling not allowed within 24 hours" });
+        }
+
+        booking.schedule.date = newDate;
+        booking.schedule.time = newTime;
+        await booking.save();
+
+        res.status(200).json({ success: true, message: "Booking rescheduled", booking });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.updateConfirmationStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!['pending', 'confirmed', 'rejected'].includes(status)) {
+            return res.status(400).json({ success: false, message: 'Invalid status value' });
+        }
+
+        const updated = await Booking.findByIdAndUpdate(id, { confirmationStatus: status }, { new: true });
+        res.status(200).json({ success: true, booking: updated });
+    } catch (error) {
+        console.error('Update Confirmation Status Error:', error);
+        res.status(500).json({ success: false, message: 'Could not update status' });
+    }
+};
+
+exports.assignServicePerson = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const { servicePersonId } = req.body;
+
+        const servicePerson = await User.findById(servicePersonId);
+        if (!servicePerson || servicePerson.role !== 'service_person') {
+            return res.status(400).json({ success: false, message: "Invalid service person ID" });
+        }
+
+        const updatedBooking = await Booking.findByIdAndUpdate(
+            bookingId,
+            { assignedTo: servicePersonId },
+            { new: true }
+        ).populate('assignedTo', 'name phone');
+
+        res.status(200).json({ success: true, message: "Service person assigned", booking: updatedBooking });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getAssignedBookings = async (req, res) => {
+    try {
+        const servicePersonId = req.user.userId;
+        const bookings = await Booking.find({ assignedTo: servicePersonId })
+            .populate('user', 'name phone')
+            .populate('services.serviceId');
+
+        res.status(200).json({ success: true, bookings });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };

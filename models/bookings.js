@@ -23,11 +23,19 @@ const bookingSchema = new mongoose.Schema({
         state: String,
         zip: String,
     },
-
     paymentStatus: {
         type: String,
         enum: ['pending', 'paid'],
         default: 'pending',
+    },
+    confirmationStatus: {
+        type: String,
+        enum: ['pending', 'confirmed', 'rejected'],
+        default: 'pending',
+    },
+    assignedTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
     },
     subtotal: Number,
     gstTotal: Number,
