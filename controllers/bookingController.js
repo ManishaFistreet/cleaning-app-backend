@@ -61,12 +61,13 @@ exports.createBooking = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-export const getAllBookings = async (req, res) => {
+
+exports.getAllBookings = async (req, res) => {
     try {
         const bookings = await Booking.find()
-            .populate('user') 
-            .populate('service') 
-            .populate('assignedTo'); 
+            .populate('user')
+            .populate('services.serviceId')
+            .populate('assignedTo');
         res.status(200).json({ success: true, data: bookings });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error fetching bookings' });

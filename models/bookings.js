@@ -42,5 +42,4 @@ const bookingSchema = new mongoose.Schema({
     grandTotal: Number,
 }, { timestamps: true });
 
-
 module.exports = mongoose.model('Booking', bookingSchema);

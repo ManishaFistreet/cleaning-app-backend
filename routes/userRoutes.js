@@ -11,6 +11,7 @@ const {
   getAllUsers,
   getAllServicePersons,
   getUserProfile,
+  createUserByAdmin,
 } = require('../controllers/userController');
 
 const { authMiddleware } = require('../middleware/auth');
@@ -29,6 +30,8 @@ router.get('/profile', authMiddleware, getUserProfile);
 
 router.get('/all',getAllUsers);
 
-router.get('/service-person/all',getAllServicePersons)
+router.get('/service-person/all',getAllServicePersons);
+
+router.post("/admin", createUserByAdmin);
 
 module.exports = router;

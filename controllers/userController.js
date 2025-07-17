@@ -244,3 +244,13 @@ exports.getAllServicePersons = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+exports.createUserByAdmin = async (req, res) => {
+  try {
+    const user = new User(req.body);
+    await user.save();
+    res.status(201).json({ success: true, user });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
