@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "4004:4004"
     restart: unless-stopped
     depends_on:
       - mongo
