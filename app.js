@@ -6,7 +6,10 @@ const app = express();
 dotenv.config();
 connectDB();
 
-app.use(cors());
+app.use(cors({
+    origin: "http://18.60.181.218:4003",
+    credentials: true,
+}));
 app.use(express.json());
 
 const userRoutes = require('./routes/userRoutes');
@@ -36,6 +39,6 @@ app.use('/api/location', locationRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/sub-services', subServiceRoutes);
-app.use('/api/bookings',bookingRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 module.exports = app;
