@@ -6,10 +6,7 @@ const app = express();
 dotenv.config();
 connectDB();
 
-app.use(cors({
-    origin: "http://18.60.181.218:4003",
-    credentials: true,
-}));
+app.use(cors());
 app.use(express.json());
 
 const userRoutes = require('./routes/userRoutes');
