@@ -124,8 +124,11 @@ exports.register = async (req, res) => {
             user.address = address;
         }
 
-        if (role === 'service_person' && serviceDetails) {
-            user.serviceDetails = serviceDetails;
+        if (role === 'service_person') {
+            user.serviceDetails = {
+                ...serviceDetails,
+                status: serviceDetails?.status || 'pending',
+            };
         }
 
         await user.save();
@@ -232,7 +235,11 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getAllServicePersons = async (req, res) => {
     try {
-        const servicePersons = await User.find({ role: 'service_person' })
+        const { status } = req.query;
+        const query = { role: 'service_person' };
+        if (status) query['serviceDetails.status'] = status;
+
+        const servicePersons = await User.find(query)
             .select('-password -otp -otpExpires')
             .sort({ createdAt: -1 });
 
@@ -246,11 +253,12 @@ exports.getAllServicePersons = async (req, res) => {
 };
 
 exports.createUserByAdmin = async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).json({ success: true, user });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
+    try {
+        const user = new User(req.body);
+        await user.save();
+        res.status(201).json({ success: true, user });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
 };
+

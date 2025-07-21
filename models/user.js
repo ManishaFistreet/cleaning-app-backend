@@ -65,6 +65,11 @@ const userSchema = new mongoose.Schema({
       },
     ],
     totalJobsCompleted: { type: Number, default: 0 },
+    status: {
+      type: String,
+      enum: ['pending', 'active'],
+      default: 'pending',
+    },
   },
 
   profilePhoto: String,
