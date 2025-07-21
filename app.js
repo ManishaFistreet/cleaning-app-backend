@@ -9,6 +9,8 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+
+
 const userRoutes = require('./routes/userRoutes');
 const servicePersonRoutes = require('./routes/servicePersonRoutes');
 const adminRoutes = require('./routes/adminRoutes');

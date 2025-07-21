@@ -15,5 +15,6 @@ router.get('/', controller.getServices);
 router.put('/:id', controller.updateService);
 router.delete('/:id', controller.deleteService);
 router.get('/:id', controller.getServiceById);
+router.get('/msg',controller.getMessage);
 
 module.exports = router;

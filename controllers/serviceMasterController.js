@@ -2,6 +2,11 @@ const ServiceMaster = require('../models/serviceMaster');
 const mongoose = require('mongoose');
 const SubService = require('../models/subServices');
 
+exports.getMessage = async (req, res) => {
+  const key = "Hello World"
+  res.status(201).json(key)
+}
+
 exports.createService = async (req, res) => {
   try {
     const {
